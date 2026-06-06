@@ -219,13 +219,20 @@ async def stream_message(chat_id: int, payload: SendMessageRequest,
     await db.commit()
 
     auto_title = len(chat.messages) <= 1
+    chat_id_val = chat.id
+    chat_model_val = chat.model
+    chat_title_val = chat.title
+
+    # Fermer la session de la requête — generate() utilisera sa propre session
+    await db.close()
 
     async def generate():
+        from database import AsyncSessionLocal
         full_response = ""
         try:
             async with get_ollama_stream_client() as client:
                 async with client.stream("POST", "/api/chat",
-                    json={"model": chat.model, "messages": messages, "stream": True}) as resp:
+                    json={"model": chat_model_val, "messages": messages, "stream": True}) as resp:
                     if resp.status_code == 401:
                         yield f"data: {json.dumps({'error': 'Clé API Ollama invalide'})}\n\n"
                         return
@@ -240,49 +247,51 @@ async def stream_message(chat_id: int, payload: SendMessageRequest,
                             if data.get("done"): break
                         except: continue
 
-            db.add(models.Message(
-                chat_id=chat.id, role="assistant",
-                content=full_response, model=chat.model))
+            async with AsyncSessionLocal() as session:
+                session.add(models.Message(
+                    chat_id=chat_id_val, role="assistant",
+                    content=full_response, model=chat_model_val))
+                await session.commit()
 
-            await db.commit()
-            print(f"[TITLE] reached: auto={auto_title} resp={len(full_response)} content={bool(payload.content.strip())} att={bool(payload.attachment)}", flush=True)
-            # ── Génération automatique du titre via gemma3:1b ──────────
-            if auto_title and full_response and (payload.content.strip() or (payload.attachment and payload.attachment.filename)):
-                user_text = payload.content.strip() or (payload.attachment.filename if payload.attachment else "")
-                new_title = None
-                try:
-                    title_prompt = (
-                        "Génère UN SEUL titre court (3 à 6 mots) en français pour cette conversation. "
-                        "Réponds uniquement par le titre, sans guillemets ni ponctuation finale ni liste.\n\n"
-                        f"Question: {user_text[:400]}\n"
-                        f"Réponse: {full_response[:400]}\n\n"
-                        "Titre:"
+                final_title = chat_title_val
+                if auto_title and full_response and (payload.content.strip() or (payload.attachment and payload.attachment.filename)):
+                    user_text = payload.content.strip() or (payload.attachment.filename if payload.attachment else "")
+                    new_title = None
+                    try:
+                        title_prompt = (
+                            "Génère UN SEUL titre court (3 à 6 mots) en français pour cette conversation. "
+                            "Réponds uniquement par le titre, sans guillemets ni ponctuation finale ni liste.\n\n"
+                            f"Question: {user_text[:400]}\n"
+                            f"Réponse: {full_response[:400]}\n\n"
+                            "Titre:"
+                        )
+                        async with get_ollama_client(timeout=20) as tc:
+                            r = await tc.post("/api/generate", json={
+                                "model": "gemma3:1b",
+                                "prompt": title_prompt,
+                                "stream": False,
+                                "options": {"temperature": 0.2, "num_predict": 25, "stop": ["\n"]}
+                            })
+                            if r.status_code == 200:
+                                gen = r.json().get("response", "").strip()
+                                gen = gen.split("\n")[0].strip(' "\'`*-.,!?:;')
+                                if 3 <= len(gen) <= 80:
+                                    new_title = gen
+                    except Exception:
+                        pass
+                    if not new_title:
+                        words = user_text.split()
+                        new_title = " ".join(words[:8]) + ("..." if len(words) > 8 else "")
+
+                    await session.execute(
+                        text("UPDATE chats SET title = :title, updated_at = NOW() WHERE id = :id"),
+                        {"title": new_title, "id": chat_id_val}
                     )
-                    async with get_ollama_client(timeout=20) as tc:
-                        r = await tc.post("/api/generate", json={
-                            "model": "gemma3:1b",
-                            "prompt": title_prompt,
-                            "stream": False,
-                            "options": {"temperature": 0.2, "num_predict": 25, "stop": ["\n"]}
-                        })
-                        if r.status_code == 200:
-                            gen = r.json().get("response", "").strip()
-                            gen = gen.split("\n")[0].strip(' "\'`*-.,!?:;')
-                            if 3 <= len(gen) <= 80:
-                                new_title = gen
-                except Exception:
-                    pass
-                if not new_title:
-                    words = user_text.split()
-                    new_title = " ".join(words[:8]) + ("..." if len(words) > 8 else "")
-                print(f"[TITLE] new_title='{new_title}' chat.id={chat.id} chat.title_avant='{chat.title}'", flush=True)
-                chat.title = new_title
-                await db.commit()
-                print(f"[TITLE] chat.title_apres='{chat.title}' commit OK", flush=True)
-                # Vérification BDD
-                await db.refresh(chat)
-                print(f"[TITLE] refresh DB title='{chat.title}'", flush=True)
-            yield f"data: {json.dumps({'done': True, 'title': chat.title})}\n\n"
+                    await session.commit()
+                    final_title = new_title
+                    print(f"[TITLE] updated='{final_title}' chat_id={chat_id_val}", flush=True)
+
+            yield f"data: {json.dumps({'done': True, 'title': final_title})}\n\n"
 
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
