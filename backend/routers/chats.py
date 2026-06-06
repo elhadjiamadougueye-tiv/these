@@ -2,7 +2,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
 from typing import Optional, List
@@ -64,22 +64,24 @@ def serialize_message(m: models.Message) -> dict:
 
 @router.get("")
 async def list_chats(db=Depends(get_db), user=Depends(auth.get_current_user)):
-    await db.expire_all()
-    result = await db.execute(
-        select(
-            models.Chat,
-            func.count(models.Message.id).label("msg_count")
-        )
-        .outerjoin(models.Message, models.Message.chat_id == models.Chat.id)
-        .where(models.Chat.user_id == user.id)
-        .group_by(models.Chat.id)
-        .order_by(models.Chat.updated_at.desc())
+    rows = await db.execute(
+        text("""
+            SELECT c.id, c.title, c.model, c.is_shared, c.share_token,
+                   c.created_at, c.updated_at,
+                   COUNT(m.id) AS message_count
+            FROM chats c
+            LEFT JOIN messages m ON m.chat_id = c.id
+            WHERE c.user_id = :user_id
+            GROUP BY c.id
+            ORDER BY c.updated_at DESC
+        """),
+        {"user_id": user.id}
     )
     return [
-        {"id": c.id, "title": c.title, "model": c.model, "is_shared": c.is_shared,
-         "share_token": c.share_token, "created_at": c.created_at,
-         "updated_at": c.updated_at, "message_count": count}
-        for c, count in result.all()
+        {"id": r.id, "title": r.title, "model": r.model, "is_shared": r.is_shared,
+         "share_token": r.share_token, "created_at": r.created_at,
+         "updated_at": r.updated_at, "message_count": r.message_count}
+        for r in rows.mappings().all()
     ]
 
 
