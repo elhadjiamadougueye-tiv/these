@@ -64,6 +64,7 @@ def serialize_message(m: models.Message) -> dict:
 
 @router.get("")
 async def list_chats(db=Depends(get_db), user=Depends(auth.get_current_user)):
+    await db.expire_all()
     result = await db.execute(
         select(
             models.Chat,

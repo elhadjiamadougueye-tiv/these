@@ -122,7 +122,6 @@ export default function ChatPage() {
                 setChat(prev => prev ? { ...prev, title: json.title } : prev)
                 setChats(prev => prev.map(c => String(c.id) === String(chatId) ? { ...c, title: json.title } : c))
               }
-              reloadChats()
             }
           } catch {}
         }
@@ -138,11 +137,11 @@ export default function ChatPage() {
               setChat(prev => prev ? { ...prev, title: json.title } : prev)
               setChats(prev => prev.map(c => String(c.id) === String(chatId) ? { ...c, title: json.title } : c))
             }
-            reloadChats()
           }
         } catch {}
       }
       await loadChat()
+      await reloadChats()
     } catch (err) {
       console.error(err)
     } finally {
