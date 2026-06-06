@@ -118,7 +118,10 @@ export default function ChatPage() {
             if (json.token) setStreamingContent(prev => prev + json.token)
             if (json.done) {
               console.log('[SSE done]', json)
-              if (json.title) setChat(prev => prev ? { ...prev, title: json.title } : prev)
+              if (json.title) {
+                setChat(prev => prev ? { ...prev, title: json.title } : prev)
+                setChats(prev => prev.map(c => String(c.id) === String(chatId) ? { ...c, title: json.title } : c))
+              }
               reloadChats()
             }
           } catch {}
@@ -131,7 +134,10 @@ export default function ChatPage() {
           const json = JSON.parse(buffer.slice(6))
           if (json.done) {
             console.log('[SSE residual done]', json)
-            if (json.title) setChat(prev => prev ? { ...prev, title: json.title } : prev)
+            if (json.title) {
+              setChat(prev => prev ? { ...prev, title: json.title } : prev)
+              setChats(prev => prev.map(c => String(c.id) === String(chatId) ? { ...c, title: json.title } : c))
+            }
             reloadChats()
           }
         } catch {}
