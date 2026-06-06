@@ -60,7 +60,7 @@ export default function FilesPage() {
 
   return (
     <div className="flex h-screen bg-surface-0 overflow-hidden">
-      <Sidebar refreshTrigger={0} />
+      <Sidebar chats={[]} setChats={() => {}} />
 
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-2xl mx-auto">
