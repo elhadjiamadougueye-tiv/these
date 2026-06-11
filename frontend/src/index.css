@@ -68,6 +68,20 @@
 .prose strong { @apply font-semibold text-ink; }
 .prose hr { @apply border-border my-4; }
 
+/* KaTeX — rendu mathématique */
+.katex-display {
+  @apply my-4 overflow-x-auto overflow-y-hidden;
+}
+.katex {
+  font-size: 1.05em;
+  color: #2d2420;
+}
+.katex-display > .katex {
+  display: block;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .cursor-blink::after {
   content: '▋';

@@ -1,5 +1,7 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Copy, Check, FileText } from 'lucide-react'
@@ -105,7 +107,8 @@ export function MessageBubble({ message, isStreaming }) {
           ) : (
             <div className="prose prose-sm max-w-none">
               <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
                 components={{
                   code({ node, inline, className, children, ...props }) {
                     const lang = /language-(\w+)/.exec(className || '')?.[1]
