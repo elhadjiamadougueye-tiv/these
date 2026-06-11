@@ -99,8 +99,8 @@ export function MessageBubble({ message, isStreaming }) {
         )}
       </div>
 
-      <div className={`max-w-[80%] ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
-        <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed
+      <div className={`max-w-[80%] min-w-0 ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
+        <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed min-w-0
           ${isUser
             ? 'bg-accent text-white shadow-sm'
             : 'bg-white border border-border text-ink shadow-sm'
@@ -115,7 +115,7 @@ export function MessageBubble({ message, isStreaming }) {
               <p className="whitespace-pre-wrap text-white leading-relaxed">{textContent}</p>
             )
           ) : (
-            <div className="prose prose-sm max-w-none">
+            <div className="prose prose-sm max-w-none overflow-x-auto">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}

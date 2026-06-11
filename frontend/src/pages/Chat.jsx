@@ -235,7 +235,7 @@ export default function ChatPage() {
         )}
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 space-y-6">
           {!chatId && (
             <div className="flex flex-col items-center justify-center h-full text-center gap-5">
               <div className="w-20 h-20 rounded-2xl bg-accent/10 border border-accent/20
