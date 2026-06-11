@@ -156,9 +156,10 @@ export default function ChatPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }
 
-  // Ne montrer les messages que si le chat chargé correspond au chatId actuel
+  // Montrer les messages si le chat correspond OU si on est en train de streamer
+  // (évite le flash de contenu vide pendant le rechargement post-streaming)
   const isCurrentChat = chat && String(chat.id) === String(chatId)
-  const allMessages = isCurrentChat ? [
+  const allMessages = (isCurrentChat || streaming) ? [
     ...messages,
     ...(streamingContent ? [{ id: 'streaming', role: 'assistant', content: streamingContent }] : []),
   ] : []
@@ -168,20 +169,26 @@ export default function ChatPage() {
       <Sidebar onNewChat={reloadChats} chats={chats} setChats={setChats} />
 
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        {chat && (
+        {/* Header — toujours rendu pour éviter le décalage de layout pendant le streaming */}
+        {chatId && (
           <header className="h-12 flex items-center justify-between px-4 border-b border-border bg-white flex-shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-sm font-medium text-ink truncate">{chat.title}</span>
-              <span className="text-[10px] px-2 py-0.5 bg-surface-3 border border-border rounded-full text-ink-3 flex-shrink-0">
-                {chat.model}
-              </span>
-            </div>
-            <button onClick={handleShare}
-              className={`btn-ghost text-xs flex items-center gap-1.5 ${shareInfo?.is_shared ? 'text-accent' : ''}`}>
-              <Share2 className="w-3.5 h-3.5" />
-              {shareInfo?.is_shared ? 'Partagé' : 'Partager'}
-            </button>
+            {chat ? (
+              <>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm font-medium text-ink truncate">{chat.title}</span>
+                  <span className="text-[10px] px-2 py-0.5 bg-surface-3 border border-border rounded-full text-ink-3 flex-shrink-0">
+                    {chat.model}
+                  </span>
+                </div>
+                <button onClick={handleShare}
+                  className={`btn-ghost text-xs flex items-center gap-1.5 ${shareInfo?.is_shared ? 'text-accent' : ''}`}>
+                  <Share2 className="w-3.5 h-3.5" />
+                  {shareInfo?.is_shared ? 'Partagé' : 'Partager'}
+                </button>
+              </>
+            ) : (
+              <div className="h-4 w-48 bg-surface-3 rounded animate-pulse" />
+            )}
           </header>
         )}
 
