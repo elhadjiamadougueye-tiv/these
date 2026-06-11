@@ -9,10 +9,19 @@ export default {
       },
       colors: {
         accent: {
-          DEFAULT: '#4f46e5',
-          hover:   '#4338ca',
-          light:   '#818cf8',
+          DEFAULT: '#6366f1',
+          hover:   '#4f46e5',
+          light:   '#a5b4fc',
         },
+        // Palette sombre cohérente pour toute l'app
+        surface: {
+          0: '#0f0f11',   // fond principal (très sombre)
+          1: '#16161a',   // fond header/footer
+          2: '#1c1c21',   // fond cartes/panneaux
+          3: '#24242b',   // fond éléments interactifs
+          4: '#2e2e38',   // fond hover
+        },
+        border: '#2e2e38',
       },
     },
   },

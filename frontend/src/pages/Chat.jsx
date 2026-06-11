@@ -172,8 +172,10 @@ export default function ChatPage() {
         {chat && (
           <header className="h-12 flex items-center justify-between px-4 border-b border-border bg-surface-1 flex-shrink-0">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs font-medium text-gray-300 truncate">{chat.title}</span>
-              <span className="text-[10px] px-1.5 py-0.5 bg-surface-3 rounded text-gray-500">{chat.model}</span>
+              <span className="text-sm font-medium text-gray-100 truncate">{chat.title}</span>
+              <span className="text-[10px] px-2 py-0.5 bg-surface-3 border border-border rounded-full text-gray-400 flex-shrink-0">
+                {chat.model}
+              </span>
             </div>
             <button onClick={handleShare}
               className={`btn-ghost text-xs flex items-center gap-1.5 ${shareInfo?.is_shared ? 'text-accent' : ''}`}>
@@ -225,15 +227,17 @@ export default function ChatPage() {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
           {!chatId && (
-            <div className="flex flex-col items-center justify-center h-full text-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center">
-                <svg className="w-8 h-8 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <div className="flex flex-col items-center justify-center h-full text-center gap-5">
+              <div className="w-18 h-18 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center p-4">
+                <svg className="w-10 h-10 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-200">Ollama Chat</h2>
-                <p className="text-sm text-gray-500 mt-1">Choisissez un modèle et démarrez un nouveau chat</p>
+                <h2 className="text-2xl font-semibold text-gray-50">Ollama Chat</h2>
+                <p className="text-sm text-gray-500 mt-2 max-w-xs leading-relaxed">
+                  Sélectionnez un modèle dans la barre latérale et créez un nouveau chat pour commencer
+                </p>
               </div>
             </div>
           )}
@@ -266,22 +270,26 @@ export default function ChatPage() {
 
             {/* Sélecteur RAG */}
             {showRag && documents.length > 0 && (
-              <div className="mb-2 p-2 bg-surface-2 border border-border rounded-xl">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-gray-400">Documents RAG</span>
-                  <button onClick={() => setShowRag(false)}>
-                    <X className="w-3.5 h-3.5 text-gray-600" />
+              <div className="mb-2 p-3 bg-surface-2 border border-border rounded-xl">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-accent" />
+                    Documents RAG
+                  </span>
+                  <button onClick={() => setShowRag(false)}
+                    className="text-gray-600 hover:text-gray-300 transition-colors">
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <div className="space-y-1 max-h-32 overflow-y-auto">
+                <div className="space-y-1 max-h-36 overflow-y-auto">
                   {documents.map(doc => (
-                    <label key={doc.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-3 cursor-pointer">
+                    <label key={doc.id} className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-surface-3 cursor-pointer transition-colors">
                       <input type="checkbox" checked={ragDocIds.includes(doc.id)}
                         onChange={(e) => setRagDocIds(prev =>
                           e.target.checked ? [...prev, doc.id] : prev.filter(id => id !== doc.id))}
-                        className="accent-accent" />
-                      <FileText className="w-3 h-3 text-gray-500" />
-                      <span className="text-xs text-gray-300 truncate">{doc.filename}</span>
+                        className="accent-accent w-3.5 h-3.5" />
+                      <FileText className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-100 truncate">{doc.filename}</span>
                     </label>
                   ))}
                 </div>
@@ -317,7 +325,7 @@ export default function ChatPage() {
                 onKeyDown={handleKeyDown}
                 placeholder={attachment ? "Ajouter un message (optionnel)…" : "Message… (Shift+Entrée pour sauter une ligne)"}
                 rows={1}
-                className="input-base w-full resize-none min-h-[40px] max-h-[200px] py-2.5 leading-relaxed"
+                className="input-base w-full resize-none min-h-[42px] max-h-[200px] py-2.5 leading-relaxed"
                 style={{ height: 'auto' }}
               />
 
@@ -336,8 +344,8 @@ export default function ChatPage() {
             </div>
 
             {ragDocIds.length > 0 && (
-              <p className="text-[10px] text-accent/70 mt-1.5 ml-9">
-                {ragDocIds.length} document(s) RAG actif(s)
+              <p className="text-[10px] text-accent mt-1.5 ml-9 font-medium">
+                {ragDocIds.length} document{ragDocIds.length > 1 ? 's' : ''} RAG actif{ragDocIds.length > 1 ? 's' : ''}
               </p>
             )}
           </div>

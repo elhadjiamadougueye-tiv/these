@@ -56,6 +56,7 @@ export default function FilesPage() {
   const typeColors = {
     pdf: 'text-red-400', docx: 'text-blue-400', txt: 'text-gray-400',
     md: 'text-purple-400', csv: 'text-green-400', json: 'text-yellow-400',
+    py: 'text-cyan-400', js: 'text-yellow-300', ts: 'text-blue-300',
   }
 
   return (
@@ -69,15 +70,20 @@ export default function FilesPage() {
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold text-gray-100">Documents & RAG</h1>
-              <p className="text-xs text-gray-500">Indexez vos fichiers pour les utiliser dans vos conversations</p>
+              <h1 className="text-lg font-semibold text-gray-50 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-accent" />
+                Documents & RAG
+              </h1>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Indexez vos fichiers pour les utiliser dans vos conversations
+              </p>
             </div>
           </div>
 
           {/* Upload zone */}
           <div
             className="border-2 border-dashed border-border hover:border-accent/40 rounded-2xl p-8
-                       text-center transition-all cursor-pointer group mb-6"
+                       text-center transition-all cursor-pointer group mb-6 bg-surface-2/30 hover:bg-surface-2/60"
             onClick={() => fileRef.current?.click()}
           >
             <input
@@ -89,21 +95,23 @@ export default function FilesPage() {
               className="hidden"
             />
             <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-surface-3 group-hover:bg-accent/15 border border-border
+              <div className="w-14 h-14 rounded-2xl bg-surface-3 group-hover:bg-accent/15 border border-border
                               group-hover:border-accent/30 flex items-center justify-center transition-all">
                 {uploading
-                  ? <svg className="w-5 h-5 text-accent animate-spin" viewBox="0 0 24 24" fill="none">
+                  ? <svg className="w-6 h-6 text-accent animate-spin" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                     </svg>
-                  : <Upload className="w-5 h-5 text-gray-500 group-hover:text-accent transition-colors" />
+                  : <Upload className="w-6 h-6 text-gray-500 group-hover:text-accent transition-colors" />
                 }
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-300">
+                <p className="text-sm font-medium text-gray-200">
                   {uploading ? 'Indexation en cours…' : 'Glisser ou cliquer pour importer'}
                 </p>
-                <p className="text-xs text-gray-600 mt-1">PDF, DOCX, TXT, MD, CSV, JSON · Max 50 Mo</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  PDF, DOCX, TXT, MD, CSV, JSON, PY, JS, TS · Max 50 Mo
+                </p>
               </div>
             </div>
           </div>
@@ -115,45 +123,57 @@ export default function FilesPage() {
                 ? 'bg-red-500/10 border-red-500/20 text-red-400'
                 : 'bg-green-500/10 border-green-500/20 text-green-400'}`}>
               {uploadStatus.fail > 0
-                ? <AlertCircle className="w-4 h-4" />
-                : <CheckCircle2 className="w-4 h-4" />}
-              {uploadStatus.success > 0 && `${uploadStatus.success} fichier(s) indexé(s). `}
-              {uploadStatus.fail > 0 && `${uploadStatus.fail} échec(s).`}
+                ? <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                : <CheckCircle2 className="w-4 h-4 flex-shrink-0" />}
+              <span>
+                {uploadStatus.success > 0 && `${uploadStatus.success} fichier(s) indexé(s) avec succès. `}
+                {uploadStatus.fail > 0 && `${uploadStatus.fail} échec(s).`}
+              </span>
             </div>
           )}
 
           {/* Documents list */}
           <div className="space-y-2">
             {documents.length === 0 && (
-              <div className="text-center text-gray-600 text-sm py-8">
-                Aucun document indexé
+              <div className="text-center text-gray-600 text-sm py-12 bg-surface-2/30 rounded-2xl border border-border/50">
+                <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                <p>Aucun document indexé</p>
+                <p className="text-xs mt-1 text-gray-700">Importez vos premiers fichiers ci-dessus</p>
               </div>
             )}
             {documents.map(doc => (
               <div key={doc.id}
                 className="flex items-center gap-3 p-4 bg-surface-2 border border-border
-                           rounded-xl hover:border-surface-4 transition-all group">
+                           rounded-xl hover:border-surface-4 hover:bg-surface-2 transition-all group">
                 <FileText className={`w-5 h-5 flex-shrink-0 ${typeColors[doc.file_type] || 'text-gray-500'}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-200 truncate font-medium"
+                  <p className="text-sm text-gray-100 truncate font-medium"
                      title={doc.filename}>{doc.filename}</p>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    {formatSize(doc.file_size)} · {doc.chunk_count} chunks · {doc.file_type.toUpperCase()}
+                    {formatSize(doc.file_size)} · {doc.chunk_count} chunks · {' '}
+                    <span className="uppercase text-gray-400">{doc.file_type}</span>
                   </p>
                 </div>
-                <span className="text-[10px] text-gray-600">
+                <span className="text-[10px] text-gray-600 flex-shrink-0">
                   {new Date(doc.created_at).toLocaleDateString('fr-FR')}
                 </span>
                 <button
                   onClick={() => handleDelete(doc.id)}
                   className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-red-400
                              hover:bg-red-500/10 rounded-lg transition-all"
+                  title="Supprimer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             ))}
           </div>
+
+          {documents.length > 0 && (
+            <p className="text-xs text-gray-600 text-center mt-4">
+              {documents.length} document{documents.length !== 1 ? 's' : ''} indexé{documents.length !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
       </main>
     </div>

@@ -12,9 +12,9 @@ import Sidebar from '../components/Sidebar'
 
 function StatCard({ label, value, color = 'text-accent' }) {
   return (
-    <div className="bg-surface-2 border border-border rounded-xl p-4">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className={`text-2xl font-bold ${color}`}>{value ?? '—'}</p>
+    <div className="bg-surface-2 border border-border rounded-xl p-4 hover:border-surface-4 transition-colors">
+      <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">{label}</p>
+      <p className={`text-3xl font-bold ${color}`}>{value ?? '—'}</p>
     </div>
   )
 }
@@ -56,52 +56,61 @@ function UserModal({ onClose, onSave, editUser }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-surface-2 border border-border rounded-2xl w-full max-w-md shadow-2xl">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-100">
+          <h2 className="text-base font-semibold text-gray-50">
             {editUser ? "Modifier l'utilisateur" : 'Créer un utilisateur'}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl leading-none">×</button>
+          <button onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500
+                       hover:text-gray-200 hover:bg-surface-3 transition-all text-xl leading-none">
+            ×
+          </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+            <div className="px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {error}
             </div>
           )}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Username *</label>
+              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Username *</label>
               <input value={form.username} onChange={e => setForm(p => ({...p, username: e.target.value}))}
-                className="input-base w-full" required={!editUser} />
+                className="input-base w-full" required={!editUser} placeholder="johndoe" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Nom complet</label>
+              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Nom complet</label>
               <input value={form.full_name} onChange={e => setForm(p => ({...p, full_name: e.target.value}))}
-                className="input-base w-full" />
+                className="input-base w-full" placeholder="John Doe" />
             </div>
           </div>
           {!editUser && (
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Email *</label>
+              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Email *</label>
               <input type="email" value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))}
-                className="input-base w-full" required />
+                className="input-base w-full" required placeholder="john@exemple.com" />
             </div>
           )}
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5">
-              Mot de passe {editUser ? '(laisser vide pour ne pas changer)' : '*'}
+            <label className="block text-xs text-gray-400 mb-1.5 font-medium">
+              Mot de passe {editUser ? <span className="text-gray-600 font-normal">(laisser vide pour ne pas changer)</span> : '*'}
             </label>
             <input type="password" value={form.password}
               onChange={e => setForm(p => ({...p, password: e.target.value}))}
-              className="input-base w-full" required={!editUser} minLength={6} />
+              className="input-base w-full" required={!editUser} minLength={6}
+              placeholder={editUser ? '••••••••' : 'Min. 6 caractères'} />
           </div>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-surface-3 transition-colors">
             <input type="checkbox" checked={form.is_admin}
               onChange={e => setForm(p => ({...p, is_admin: e.target.checked}))}
-              className="accent-accent" />
-            <span className="text-sm text-gray-300">Administrateur</span>
+              className="accent-accent w-4 h-4" />
+            <div>
+              <span className="text-sm text-gray-200 font-medium">Administrateur</span>
+              <p className="text-xs text-gray-500 mt-0.5">Accès complet à la gestion des utilisateurs et documents</p>
+            </div>
           </label>
           <div className="flex gap-2 pt-2">
             <button type="button" onClick={onClose} className="btn-ghost flex-1">Annuler</button>
@@ -170,6 +179,12 @@ export default function AdminPage() {
     load()
   }
 
+  const typeColors = {
+    pdf: 'text-red-400', docx: 'text-blue-400', txt: 'text-gray-400',
+    md: 'text-purple-400', csv: 'text-green-400', json: 'text-yellow-400',
+    py: 'text-cyan-400', js: 'text-yellow-300', ts: 'text-blue-300',
+  }
+
   return (
     <div className="flex h-screen bg-surface-0 overflow-hidden">
       <Sidebar chats={[]} setChats={() => {}} />
@@ -179,17 +194,19 @@ export default function AdminPage() {
 
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
-            <button onClick={() => navigate('/')} className="btn-ghost p-1.5">
+            <button onClick={() => navigate('/')} className="btn-ghost p-1.5" title="Retour">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="flex-1">
-              <h1 className="text-lg font-semibold text-gray-100 flex items-center gap-2">
+              <h1 className="text-lg font-semibold text-gray-50 flex items-center gap-2">
                 <Shield className="w-5 h-5 text-accent" />
                 Administration
               </h1>
+              <p className="text-xs text-gray-500 mt-0.5">Gestion des utilisateurs et documents</p>
             </div>
-            <button onClick={load} className="btn-ghost p-1.5" title="Rafraîchir">
-              <RefreshCw className="w-4 h-4" />
+            <button onClick={load} disabled={loading}
+              className="btn-ghost p-1.5" title="Rafraîchir">
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
             {activeTab === 'users' && (
               <button onClick={() => { setEditUser(null); setShowModal(true) }}
@@ -221,12 +238,16 @@ export default function AdminPage() {
           <div className="flex gap-1 mb-4 bg-surface-2 border border-border rounded-xl p-1 w-fit">
             <button onClick={() => setActiveTab('users')}
               className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all
-                ${activeTab === 'users' ? 'bg-accent text-white' : 'text-gray-400 hover:text-gray-200'}`}>
+                ${activeTab === 'users'
+                  ? 'bg-accent text-white shadow-sm'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-surface-3'}`}>
               Utilisateurs ({users.length})
             </button>
             <button onClick={() => setActiveTab('documents')}
               className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all
-                ${activeTab === 'documents' ? 'bg-accent text-white' : 'text-gray-400 hover:text-gray-200'}`}>
+                ${activeTab === 'documents'
+                  ? 'bg-accent text-white shadow-sm'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-surface-3'}`}>
               Documents RAG ({allDocs.length})
             </button>
           </div>
@@ -235,68 +256,93 @@ export default function AdminPage() {
           {activeTab === 'users' && (
             <div className="bg-surface-2 border border-border rounded-2xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                <Activity className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-300">Utilisateurs ({users.length})</span>
+                <Activity className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium text-gray-200">Liste des utilisateurs</span>
+                <span className="ml-auto text-xs text-gray-500 bg-surface-3 px-2 py-0.5 rounded-full">
+                  {users.length} compte{users.length !== 1 ? 's' : ''}
+                </span>
               </div>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    {['Username','Email','Rôle','Statut','Créé le','Actions'].map(h => (
-                      <th key={h} className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(user => (
-                    <tr key={user.id} className="border-b border-border/50 hover:bg-surface-3/50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-accent text-[10px] font-bold">
-                            {user.username[0]?.toUpperCase()}
-                          </div>
-                          <span className="text-gray-200 font-medium">{user.username}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">{user.email}</td>
-                      <td className="px-4 py-3">
-                        {user.is_admin
-                          ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/15 text-accent rounded text-[10px] font-medium border border-accent/20">
-                              <Shield className="w-2.5 h-2.5" /> Admin
-                            </span>
-                          : <span className="text-xs text-gray-500">Utilisateur</span>}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-block w-2 h-2 rounded-full ${user.is_active ? 'bg-green-400' : 'bg-gray-600'}`} />
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-600">
-                        {new Date(user.created_at).toLocaleDateString('fr-FR')}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => { setEditUser(user); setShowModal(true) }}
-                            className="p-1.5 hover:bg-surface-4 rounded-lg text-gray-500 hover:text-gray-200 transition-all"
-                            title="Modifier">
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                          </button>
-                          <button onClick={() => toggleActive(user)}
-                            className={`p-1.5 rounded-lg transition-all ${user.is_active ? 'hover:bg-orange-500/10 text-gray-500 hover:text-orange-400' : 'hover:bg-green-500/10 text-gray-500 hover:text-green-400'}`}
-                            title={user.is_active ? 'Désactiver' : 'Activer'}>
-                            {user.is_active ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
-                          </button>
-                          <button onClick={() => handleDelete(user.id)}
-                            className="p-1.5 hover:bg-red-500/10 rounded-lg text-gray-500 hover:text-red-400 transition-all"
-                            title="Supprimer">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
+              {loading ? (
+                <div className="px-4 py-10 text-center text-gray-500 text-sm">Chargement…</div>
+              ) : users.length === 0 ? (
+                <div className="px-4 py-10 text-center text-gray-600 text-sm">Aucun utilisateur</div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      {['Utilisateur', 'Email', 'Rôle', 'Statut', 'Créé le', 'Actions'].map(h => (
+                        <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
+                          {h}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-border/50">
+                    {users.map(user => (
+                      <tr key={user.id} className="hover:bg-surface-3/40 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full bg-accent/20 border border-accent/25 flex items-center justify-center text-accent text-[11px] font-bold flex-shrink-0">
+                              {user.username[0]?.toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="text-gray-100 font-medium text-xs">{user.username}</span>
+                              {user.full_name && (
+                                <p className="text-[10px] text-gray-500 mt-0.5">{user.full_name}</p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-gray-300 text-xs">{user.email}</td>
+                        <td className="px-4 py-3">
+                          {user.is_admin
+                            ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/15 text-accent rounded-full text-[10px] font-semibold border border-accent/25">
+                                <Shield className="w-2.5 h-2.5" /> Admin
+                              </span>
+                            : <span className="text-xs text-gray-500">Utilisateur</span>}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full
+                            ${user.is_active
+                              ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                              : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${user.is_active ? 'bg-green-400' : 'bg-gray-500'}`} />
+                            {user.is_active ? 'Actif' : 'Inactif'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-500">
+                          {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => { setEditUser(user); setShowModal(true) }}
+                              className="p-1.5 hover:bg-surface-4 rounded-lg text-gray-500 hover:text-gray-100 transition-all"
+                              title="Modifier">
+                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                              </svg>
+                            </button>
+                            <button onClick={() => toggleActive(user)}
+                              className={`p-1.5 rounded-lg transition-all ${
+                                user.is_active
+                                  ? 'hover:bg-orange-500/10 text-gray-500 hover:text-orange-400'
+                                  : 'hover:bg-green-500/10 text-gray-500 hover:text-green-400'}`}
+                              title={user.is_active ? 'Désactiver' : 'Activer'}>
+                              {user.is_active ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+                            </button>
+                            <button onClick={() => handleDelete(user.id)}
+                              className="p-1.5 hover:bg-red-500/10 rounded-lg text-gray-500 hover:text-red-400 transition-all"
+                              title="Supprimer">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 
@@ -304,58 +350,69 @@ export default function AdminPage() {
           {activeTab === 'documents' && (
             <div className="bg-surface-2 border border-border rounded-2xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                <FileText className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-300">
-                  Tous les documents indexés ({allDocs.length})
+                <FileText className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium text-gray-200">
+                  Documents indexés
+                </span>
+                <span className="ml-auto text-xs text-gray-500 bg-surface-3 px-2 py-0.5 rounded-full">
+                  {allDocs.length} fichier{allDocs.length !== 1 ? 's' : ''}
                 </span>
               </div>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    {['Fichier','Type','Utilisateur','Chunks','Indexé','Date'].map(h => (
-                      <th key={h} className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {allDocs.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-gray-600 text-sm">
-                        Aucun document indexé
-                      </td>
+              {loading ? (
+                <div className="px-4 py-10 text-center text-gray-500 text-sm">Chargement…</div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      {['Fichier', 'Type', 'Utilisateur', 'Chunks', 'Indexé', 'Date'].map(h => (
+                        <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
+                          {h}
+                        </th>
+                      ))}
                     </tr>
-                  )}
-                  {allDocs.map(doc => (
-                    <tr key={doc.id} className="border-b border-border/50 hover:bg-surface-3/50">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
-                          <span className="text-gray-200 text-xs truncate max-w-[220px]" title={doc.filename}>
-                            {doc.filename}
+                  </thead>
+                  <tbody className="divide-y divide-border/50">
+                    {allDocs.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-10 text-center text-gray-600 text-sm">
+                          Aucun document indexé
+                        </td>
+                      </tr>
+                    )}
+                    {allDocs.map(doc => (
+                      <tr key={doc.id} className="hover:bg-surface-3/40 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <FileText className={`w-4 h-4 flex-shrink-0 ${typeColors[doc.file_type] || 'text-gray-500'}`} />
+                            <span className="text-gray-100 text-xs font-medium truncate max-w-[200px]" title={doc.filename}>
+                              {doc.filename}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-[10px] px-2 py-0.5 bg-surface-3 border border-border rounded-full text-gray-300 uppercase font-medium">
+                            {doc.file_type}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-[10px] px-1.5 py-0.5 bg-surface-3 rounded text-gray-400 uppercase">
-                          {doc.file_type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-400">{doc.user}</td>
-                      <td className="px-4 py-3 text-xs text-gray-400 text-center">{doc.chunk_count}</td>
-                      <td className="px-4 py-3">
-                        {doc.indexed
-                          ? <span className="text-green-400 text-xs font-medium">✓ Oui</span>
-                          : <span className="text-red-400 text-xs flex items-center gap-1">
-                              <AlertCircle className="w-3 h-3" /> Non
-                            </span>}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-600">
-                        {new Date(doc.created_at).toLocaleDateString('fr-FR')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-300 font-medium">{doc.user}</td>
+                        <td className="px-4 py-3 text-xs text-gray-300 text-center font-mono">{doc.chunk_count}</td>
+                        <td className="px-4 py-3">
+                          {doc.indexed
+                            ? <span className="inline-flex items-center gap-1 text-green-400 text-xs font-medium">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> Oui
+                              </span>
+                            : <span className="inline-flex items-center gap-1 text-red-400 text-xs">
+                                <AlertCircle className="w-3 h-3" /> Non
+                              </span>}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-500">
+                          {new Date(doc.created_at).toLocaleDateString('fr-FR')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 

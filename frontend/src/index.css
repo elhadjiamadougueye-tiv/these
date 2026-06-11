@@ -4,10 +4,13 @@
 
 @layer base {
   * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body { background-color: #0f0f11; color: #e5e7eb; }
+
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+  ::-webkit-scrollbar-thumb { background: #3f3f4a; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #5a5a6a; }
 }
 
 @layer components {
@@ -17,28 +20,34 @@
            text-sm focus:outline-none focus:ring-2 focus:ring-accent/30;
   }
   .btn-ghost {
-    @apply px-3 py-2 hover:bg-gray-100 text-gray-500 hover:text-gray-800
+    @apply px-3 py-2 hover:bg-surface-3 text-gray-400 hover:text-gray-100
            rounded-lg transition-all duration-150 text-sm;
   }
   .input-base {
-    @apply bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm
-           text-gray-900 placeholder-gray-400 focus:outline-none focus:border-accent
+    @apply bg-surface-3 border border-border rounded-lg px-3 py-2 text-sm
+           text-gray-100 placeholder-gray-500 focus:outline-none focus:border-accent
            focus:ring-1 focus:ring-accent/20 transition-all;
   }
 }
 
-.prose pre { @apply bg-gray-900 rounded-xl overflow-hidden my-3 text-sm; }
-.prose code { @apply font-mono text-indigo-600 text-xs bg-indigo-50 px-1 rounded; }
-.prose pre code { @apply text-gray-100 bg-transparent px-0; }
-.prose p { @apply mb-3 leading-relaxed text-gray-800; }
-.prose ul { @apply list-disc pl-5 mb-3 space-y-1 text-gray-800; }
-.prose ol { @apply list-decimal pl-5 mb-3 space-y-1 text-gray-800; }
+/* Prose en thème sombre (réponses IA) */
+.prose pre { @apply bg-surface-0 rounded-xl overflow-hidden my-3 text-sm border border-border; }
+.prose code { @apply font-mono text-accent-light text-xs bg-surface-3 px-1.5 py-0.5 rounded border border-border/50; }
+.prose pre code { @apply text-gray-100 bg-transparent px-0 border-0; }
+.prose p { @apply mb-3 leading-relaxed text-gray-200; }
+.prose ul { @apply list-disc pl-5 mb-3 space-y-1 text-gray-200; }
+.prose ol { @apply list-decimal pl-5 mb-3 space-y-1 text-gray-200; }
+.prose li { @apply text-gray-200; }
 .prose h1,
 .prose h2,
-.prose h3 { @apply font-semibold text-gray-900 mt-4 mb-2; }
+.prose h3 { @apply font-semibold text-gray-50 mt-4 mb-2; }
 .prose table { @apply w-full text-sm border-collapse mb-3; }
-.prose th { @apply bg-gray-100 border border-gray-200 px-3 py-2 text-left font-medium text-gray-700; }
-.prose td { @apply border border-gray-200 px-3 py-2 text-gray-800; }
+.prose th { @apply bg-surface-3 border border-border px-3 py-2 text-left font-medium text-gray-200; }
+.prose td { @apply border border-border px-3 py-2 text-gray-300; }
+.prose a { @apply text-accent-light underline underline-offset-2 hover:text-accent; }
+.prose blockquote { @apply border-l-2 border-accent/50 pl-4 italic text-gray-400 my-3; }
+.prose strong { @apply font-semibold text-gray-100; }
+.prose hr { @apply border-border my-4; }
 
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .cursor-blink::after {
