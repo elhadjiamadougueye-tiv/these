@@ -8,20 +8,28 @@ export default {
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
+        // Accent Claude AI : orange/terracotta chaud
         accent: {
-          DEFAULT: '#6366f1',
-          hover:   '#4f46e5',
-          light:   '#a5b4fc',
+          DEFAULT: '#d97757',
+          hover:   '#c96442',
+          light:   '#e8a989',
         },
-        // Palette sombre cohérente pour toute l'app
+        // Palette Claude AI : tons beige/crème chauds (light mode)
         surface: {
-          0: '#0f0f11',   // fond principal (très sombre)
-          1: '#16161a',   // fond header/footer
-          2: '#1c1c21',   // fond cartes/panneaux
-          3: '#24242b',   // fond éléments interactifs
-          4: '#2e2e38',   // fond hover
+          0: '#faf9f7',   // fond principal (crème très clair)
+          1: '#f5f0e8',   // fond sidebar / header
+          2: '#ffffff',   // fond cartes/panneaux (blanc pur)
+          3: '#f0ebe3',   // fond éléments interactifs (beige léger)
+          4: '#e8e0d5',   // fond hover (beige moyen)
         },
-        border: '#2e2e38',
+        border: '#e2d9ce',
+        // Textes
+        ink: {
+          DEFAULT: '#1a1612',  // texte principal brun très foncé
+          2: '#4a3f35',        // texte secondaire brun moyen
+          3: '#6b5e52',        // texte tertiaire brun clair
+          4: '#9b8b7e',        // texte désactivé/placeholder
+        },
       },
     },
   },

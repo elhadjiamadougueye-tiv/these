@@ -70,11 +70,11 @@ export default function FilesPage() {
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold text-gray-50 flex items-center gap-2">
+              <h1 className="text-lg font-semibold text-ink flex items-center gap-2">
                 <FileText className="w-5 h-5 text-accent" />
                 Documents & RAG
               </h1>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-ink0 mt-0.5">
                 Indexez vos fichiers pour les utiliser dans vos conversations
               </p>
             </div>
@@ -102,14 +102,14 @@ export default function FilesPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                     </svg>
-                  : <Upload className="w-6 h-6 text-gray-500 group-hover:text-accent transition-colors" />
+                  : <Upload className="w-6 h-6 text-ink0 group-hover:text-accent transition-colors" />
                 }
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-200">
+                <p className="text-sm font-medium text-ink-2">
                   {uploading ? 'Indexation en cours…' : 'Glisser ou cliquer pour importer'}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-ink0 mt-1">
                   PDF, DOCX, TXT, MD, CSV, JSON, PY, JS, TS · Max 50 Mo
                 </p>
               </div>
@@ -135,7 +135,7 @@ export default function FilesPage() {
           {/* Documents list */}
           <div className="space-y-2">
             {documents.length === 0 && (
-              <div className="text-center text-gray-600 text-sm py-12 bg-surface-2/30 rounded-2xl border border-border/50">
+              <div className="text-center text-gray-600 text-sm py-12 bg-white rounded-2xl border border-border shadow-sm">
                 <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p>Aucun document indexé</p>
                 <p className="text-xs mt-1 text-gray-700">Importez vos premiers fichiers ci-dessus</p>
@@ -143,13 +143,13 @@ export default function FilesPage() {
             )}
             {documents.map(doc => (
               <div key={doc.id}
-                className="flex items-center gap-3 p-4 bg-surface-2 border border-border
-                           rounded-xl hover:border-surface-4 hover:bg-surface-2 transition-all group">
-                <FileText className={`w-5 h-5 flex-shrink-0 ${typeColors[doc.file_type] || 'text-gray-500'}`} />
+                className="flex items-center gap-3 p-4 bg-white border border-border
+                           rounded-xl hover:border-accent/30 hover:shadow-sm transition-all group">
+                <FileText className={`w-5 h-5 flex-shrink-0 ${typeColors[doc.file_type] || 'text-ink0'}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-100 truncate font-medium"
+                  <p className="text-sm text-ink truncate font-medium"
                      title={doc.filename}>{doc.filename}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-ink0 mt-0.5">
                     {formatSize(doc.file_size)} · {doc.chunk_count} chunks · {' '}
                     <span className="uppercase text-gray-400">{doc.file_type}</span>
                   </p>
