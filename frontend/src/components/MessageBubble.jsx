@@ -67,11 +67,21 @@ function AttachmentDisplay({ extra_data, isUser }) {
   return null
 }
 
+// Convertit la notation LaTeX \[...\] et \(...\) en $$...$$ et $...$
+// car remark-math ne reconnaît que la syntaxe dollar
+function normalizeMath(text) {
+  if (!text) return text
+  return text
+    .replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, (_, math) => `$$${math.trim()}$$`)
+    .replace(/\\\(\s*([\s\S]*?)\s*\\\)/g, (_, math) => `$${math.trim()}$`)
+}
+
 export function MessageBubble({ message, isStreaming }) {
   const isUser = message.role === 'user'
   const hasAttachment = message.extra_data && message.extra_data.type
   const textContent = message.content?.startsWith('[Fichier joint') && hasAttachment
     ? '' : message.content
+  const normalizedContent = isUser ? message.content : normalizeMath(message.content)
 
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'} group`}>
@@ -154,7 +164,7 @@ export function MessageBubble({ message, isStreaming }) {
                     )
                   },
                 }}
-              >{message.content}</ReactMarkdown>
+              >{normalizedContent}</ReactMarkdown>
             </div>
           )}
         </div>
